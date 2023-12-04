@@ -1,3 +1,4 @@
+from collections import defaultdict
 from helpers import get_lines
 
 class Game:
@@ -45,6 +46,20 @@ def is_game_valid(limits: dict[str, int], game: Game) -> bool:
                 return False
     return True
 
+def get_minimums_for_game(game: Game) -> dict[str, int]:
+    minimums = defaultdict(int)
+    for round in game.rounds:
+        for color in round.keys():
+            minimums[color] = max(minimums[color], round[color])
+
+    return minimums
+
+def get_powerset_for_minimums(minimums: dict[str, int]):
+    val = 1
+    for value in minimums.values():
+        val *= value
+    return val
+
 def get_answer_part_one():
     lines = get_lines("data/day2.txt")
     limits = {"red": 12, "blue": 14, "green": 13}
@@ -56,5 +71,11 @@ def get_answer_part_one():
     return answer
 
 def get_answer_part_two():
-    lines = get_lines("data/day2_mini.txt")
-    return "Not implemented!"
+    lines = get_lines("data/day2.txt")
+    answer = 0
+    for line in lines:
+        game = get_game_from_line(line)
+        minimums = get_minimums_for_game(game)
+        powerset = get_powerset_for_minimums(minimums)
+        answer += powerset
+    return answer
