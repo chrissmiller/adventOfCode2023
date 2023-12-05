@@ -8,7 +8,12 @@ def get_lines(filepath: str) -> list[str]:
     f = None
     try:
         f = open(filepath, "r")
-        return f.readlines()
+        lines = f.readlines()
     finally:
         if f is not None:
             f.close()
+
+    for i in range(len(lines)):
+        lines[i] = lines[i].strip()
+
+    return lines
