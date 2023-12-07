@@ -33,6 +33,14 @@ def get_points_for_card(card: Card) -> int:
 
     return points
 
+def get_matches_for_card(card: Card) -> int:
+    matches = 0
+    for num in card.numbers:
+        if num in card.winners:
+            matches += 1
+
+    return matches
+
 def get_answer_part_one():
     lines = get_lines("data/day4_mini.txt")
     answer = 0
@@ -44,6 +52,29 @@ def get_answer_part_one():
     return answer
 
 def get_answer_part_two():
-    lines = get_lines("data/day4_mini.txt")
+    lines = get_lines("data/day4.txt")
     answer = 0
-    return "I don't know."
+    cards = [get_card_from_line(line) for line in lines]
+    card_matches_map = {card.id:get_matches_for_card(card) for card in cards}
+
+    # Maps from card ID to E2E value (number of generated cards, including self)
+    max_id = cards[-1].id
+    card_value_map = {max_id:1}
+
+    # go back to front
+    cards.reverse()
+    for card in cards:
+        if card.id in card_value_map.keys():
+            print(f"For card {card.id}, using cached value ({card_value_map[card.id]}).")
+            answer += card_value_map[card.id]
+            continue
+        card_value = 1
+        points = card_matches_map[card.id]
+        print(f"For card {card.id}, found {points} points. Running from {card.id+1} to {min(card.id+points, max_id)+1}.")
+        for i in range(card.id+1, min(card.id+points, max_id)+1):
+            print(f"For card {card.id}, adding E2E value of card {i} ({card_value_map[i]}).")
+            card_value += card_value_map[i]
+
+        card_value_map[card.id] = card_value
+        answer += card_value
+    return answer
